@@ -1,12 +1,11 @@
-# madankc.com.np — profile site
+# profile.madankc.com.np
 
-A static site, no build step. Plain HTML/CSS/JS + Three.js (WebGL hero) + GSAP (scroll animation), both loaded from CDN. This means Cloudflare Pages needs **zero build configuration** — it just serves the files.
+A static site, no build step. Plain HTML/CSS/JS + Three.js (WebGL hero with bloom) + GSAP (scroll animation) + Lenis (smooth scroll), all loaded from CDN. Cloudflare Pages needs **zero build configuration** — it just serves the files.
 
 ## 1. Before you deploy
 
-- Replace `assets/profile.jpg` with your real photo (currently a placeholder). Square-ish or portrait (4:5) crops work best, at least 800px wide.
-- Swap `hello@madankc.com.np` in `index.html` for whichever email you actually want listed.
-- Everything else (DG Link Network, thenepal.io, the builds grid) is written from what you told me — check it over and adjust any wording, numbers, or claims you want to change.
+- Replace `assets/profile.jpg` with your real photo (currently a placeholder — your upload didn't come through on my end, so drop the real file in here). Portrait crop (4:5), at least 800px wide, works best.
+- Everything else — the six project cards and six social links — is pulled straight from what you gave me. Skim it once for typos, especially the WhatsApp number and handles.
 
 ## 2. Push to GitHub
 
@@ -32,32 +31,32 @@ gh repo create madankc-profile --public --source=. --push
    - **Build output directory:** `/`
 4. Deploy. You'll get a `*.pages.dev` URL to confirm it works.
 
-## 4. Point madankc.com.np at it
+## 4. Point profile.madankc.com.np at it
 
-In the Pages project → **Custom domains** → **Set up a custom domain** → enter `madankc.com.np` (and `www.madankc.com.np` if you want both).
+In the Pages project → **Custom domains** → **Set up a custom domain** → enter `profile.madankc.com.np`.
 
-- If your domain's nameservers are already on Cloudflare, this is one click — Cloudflare adds the DNS record for you.
-- If not, add the CNAME record Cloudflare shows you at your current DNS provider, pointing `madankc.com.np` to your `*.pages.dev` address.
-
-DNS can take a few minutes to a few hours to propagate.
+- If your domain's nameservers are already on Cloudflare, this is one click.
+- If not, add the CNAME record Cloudflare shows you at your current DNS provider.
 
 ## 5. From then on
 
-Every `git push` to `main` auto-deploys. No dashboard steps needed after the first setup.
+Every `git push` to `main` auto-deploys.
 
 ## Structure
 
 ```
-index.html        — all page content/sections
+index.html        — hero, projects grid, connect/socials grid
 css/style.css      — design tokens + all styling
-js/hero.js         — WebGL network hero (Three.js)
-js/main.js         — scroll reveals, cursor, nav (GSAP)
+js/hero.js         — WebGL network hero (Three.js + bloom)
+js/main.js         — loader, scroll reveals, cursor, magnetic buttons, Lenis
 assets/profile.jpg — your photo (replace this)
 ```
 
-## Notes on the design
+## What's in it
 
-- Palette: deep pine-slate background, amber = fiber-optic signal, teal = data/water — tied to what you actually do, not a generic dark theme.
-- The hero is a live WebGL network graph on a hill-shaped terrain grid — literal, not decorative: nodes connected by lines with light pulses traveling along them, like packets on fiber.
-- Respects `prefers-reduced-motion` — animations calm down automatically for anyone with that OS setting on.
-- Fully responsive; the builds grid and venture cards collapse to single columns under ~800px.
+- Hero: your name, the badge (10+ years ISP experience), your photo, and a live WebGL fiber-network scene behind it all (bloom-lit nodes and pulses on a terrain grid).
+- A scrolling marquee of your actual stack (BDCOM, Huawei OLT, MikroTik, GPON/EPON).
+- Projects — all six of your real sites/tools, each card linking straight out.
+- Connect — all six social links (GitHub, LinkedIn, YouTube, X, Facebook, WhatsApp).
+- Loader sequence, kinetic title reveal, word-by-word scroll reveals, magnetic buttons, trailing cursor, subtle 3D tilt on cards — the same interaction layer as before, retargeted at this content.
+- Respects `prefers-reduced-motion` throughout.
