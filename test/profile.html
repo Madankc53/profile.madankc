@@ -12,6 +12,7 @@
   :root{
     --bg:#08090A;
     --panel:#131417;
+    --panel2:#0F1012;
     --bone:#EDEAE3;
     --dim:#6E7074;
     --dim2:#8A8B8E;
@@ -24,10 +25,20 @@
   body{background:var(--bg);color:var(--bone);font-family:'Inter',sans-serif;overflow-x:hidden;}
   .mono{font-family:'JetBrains Mono',monospace;}
   img{max-width:100%;display:block;}
+  ::selection{background:var(--green);color:#08090A;}
+  a:focus-visible, button:focus-visible{outline:2px solid var(--green);outline-offset:3px;}
 
   @supports not (animation-timeline: view()){
-    .plane, .fold-in{opacity:1 !important;transform:none !important;filter:none !important;}
+    .plane, .fold-in, .word-line, .diagram-node, .stat-card{opacity:1 !important;transform:none !important;filter:none !important;}
   }
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;scroll-behavior:auto !important;}
+  }
+
+  /* ================= SCROLL PROGRESS ================= */
+  .progress-rail{position:fixed;top:0;left:0;height:2px;width:100%;background:transparent;z-index:100;}
+  .progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--green),var(--brass));animation:growProgress linear;animation-timeline:scroll(root);}
+  @keyframes growProgress{from{width:0%;}to{width:100%;}}
 
   /* ================= NAV ================= */
   nav{
@@ -43,109 +54,64 @@
   .nav-links a:hover{color:var(--bone);}
   @media(max-width:700px){.nav-links{display:none;}}
 
-  /* ================= SIGNAL FIELD HERO ================= */
-  .field-zone{
-    perspective:1600px;
-    perspective-origin:50% 42%;
-    height:320vh;
-    position:relative;
-  }
-  .field-rig{
-    position:sticky;top:0;height:100vh;
-    display:flex;align-items:center;justify-content:center;
-    transform-style:preserve-3d;
-    overflow:hidden;
-  }
-  .plane{
-    position:absolute;
-    transform-style:preserve-3d;
-    animation-timeline:view();
-    animation-range:entry 0% exit 100%;
-    animation-fill-mode:both;
-    animation-duration:1ms;
-  }
+  /* ================= STORY HERO (word-by-word discovery) ================= */
+  .story-zone{position:relative;background:var(--bg);}
+  .story-track{height:600vh;position:relative;}
+  .story-rig{position:sticky;top:0;height:100vh;overflow:hidden;display:flex;align-items:center;justify-content:center;}
 
-  .plane-mesh{inset:0;animation-name:meshDrift;opacity:.35;}
-  @keyframes meshDrift{
-    0%   { transform:translateZ(-800px) scale(1.6) rotate(0deg); opacity:.15; }
-    55%  { transform:translateZ(-780px) scale(1.55) rotate(1.2deg); opacity:.4; }
-    100% { transform:translateZ(-760px) scale(1.5) rotate(1.6deg); opacity:.28; }
-  }
-  .mesh-svg{width:100%;height:100%;}
+  .fiber-bg{position:absolute;inset:0;z-index:0;}
+  .fiber-bg svg{width:100%;height:100%;}
+  .fiber-path{fill:none;stroke:var(--green);stroke-width:1;opacity:.22;stroke-dasharray:6 10;animation:dashFlow 12s linear infinite;}
+  .fiber-path.b{stroke:var(--brass);animation-duration:16s;opacity:.16;}
+  @keyframes dashFlow{to{stroke-dashoffset:-400;}}
+  .noise-overlay{position:absolute;inset:0;z-index:1;opacity:.04;pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
 
-  .plane-ghost{
-    top:50%;left:50%;width:100vw;text-align:center;
-    animation-name:ghostDrift;pointer-events:none;
-  }
-  @keyframes ghostDrift{
-    0%   { transform:translate(-50%,-50%) translateZ(-400px) translateY(40px); opacity:0; }
-    45%  { transform:translate(-50%,-50%) translateZ(-380px) translateY(-6px); opacity:.5; }
-    100% { transform:translate(-50%,-50%) translateZ(-340px) translateY(-40px); opacity:.22; }
-  }
-  .ghost-text{
+  .word-line{
+    position:absolute;top:50%;left:50%;
+    transform:translate(-50%,-50%);
     font-family:'Fraunces',serif;font-weight:700;
-    font-size:clamp(4rem,16vw,13rem);letter-spacing:-.02em;
-    color:transparent;-webkit-text-stroke:1px rgba(237,234,227,.28);
-    white-space:nowrap;
+    font-size:clamp(2.6rem,9vw,7rem);letter-spacing:-.01em;
+    text-align:center;white-space:nowrap;z-index:2;
+    animation-name:wordReveal;animation-timeline:view();
+    animation-range:entry 0% exit 100%;animation-fill-mode:both;animation-duration:1ms;
   }
+  @keyframes wordReveal{
+    0%   { opacity:0; transform:translate(-50%,-50%) translateY(50px) scale(.92); filter:blur(6px); }
+    35%  { opacity:1; transform:translate(-50%,-50%) translateY(0) scale(1); filter:blur(0); }
+    70%  { opacity:1; transform:translate(-50%,-50%) translateY(0) scale(1); filter:blur(0); }
+    100% { opacity:0; transform:translate(-50%,-50%) translateY(-50px) scale(1.04); filter:blur(4px); }
+  }
+  .w-networks{color:var(--green);}
+  .w-fiber{color:var(--brass);}
+  .w-people{font-size:clamp(1.1rem,2.6vw,1.6rem);font-family:'Inter',sans-serif;font-weight:500;color:var(--dim2);white-space:normal;max-width:560px;line-height:1.6;}
+  .w-line{width:1px;height:60px;background:linear-gradient(var(--dim),transparent);position:absolute;top:50%;left:50%;transform:translate(-50%,-10%);}
 
-  .plane-frag{top:0;left:0;width:100%;height:100%;animation-name:fragDrift;}
-  @keyframes fragDrift{
-    0%   { transform:translateZ(-100px) translateY(60px) rotateZ(-2deg); opacity:0; }
-    50%  { transform:translateZ(-60px) translateY(0px) rotateZ(1deg); opacity:1; }
-    100% { transform:translateZ(20px) translateY(-50px) rotateZ(3deg); opacity:.75; }
-  }
-  .frag{
-    position:absolute;font-family:'JetBrains Mono',monospace;font-size:.78rem;letter-spacing:.06em;
-    color:var(--green);border:1px solid rgba(62,207,142,.35);
-    background:rgba(62,207,142,.06);padding:8px 16px;border-radius:20px;backdrop-filter:blur(2px);
-  }
-  .f1{top:20%;left:10%;} .f2{top:14%;right:12%;color:var(--brass);border-color:rgba(176,138,92,.4);background:rgba(176,138,92,.07);}
-  .f3{bottom:30%;left:14%;} .f4{bottom:20%;right:9%;color:var(--brass);border-color:rgba(176,138,92,.4);background:rgba(176,138,92,.07);}
-  .f5{top:46%;left:4%;} .f6{top:50%;right:5%;}
-
-  .plane-anchor{top:50%;left:50%;width:100%;text-align:center;animation-name:anchorSettle;z-index:5;}
-  @keyframes anchorSettle{
-    0%   { transform:translate(-50%,-50%) translateZ(0) scale(.94); opacity:0; filter:blur(6px); }
-    40%  { transform:translate(-50%,-50%) translateZ(20px) scale(1); opacity:1; filter:blur(0); }
-    100% { transform:translate(-50%,-50%) translateZ(60px) scale(1.03); opacity:1; filter:blur(0); }
-  }
-
-  /* portrait — swap PORTRAIT_SRC below with your real photo path */
+  /* final anchor: name + photo */
+  .word-anchor{z-index:3;}
   .portrait-ring{
-    width:104px;height:104px;border-radius:50%;
-    margin:0 auto 24px;position:relative;
-    background:linear-gradient(135deg,var(--green),var(--brass));
-    padding:3px;
+    width:118px;height:118px;border-radius:50%;
+    margin:0 auto 26px;position:relative;
+    background:conic-gradient(from 0deg,var(--green),var(--brass),var(--green));
+    padding:3px;animation:ringSpin 6s linear infinite;
   }
+  @keyframes ringSpin{to{transform:rotate(360deg);}}
   .portrait-ring .inner{
     width:100%;height:100%;border-radius:50%;overflow:hidden;
     background:var(--panel);display:flex;align-items:center;justify-content:center;
+    animation:ringSpinCounter 6s linear infinite;
   }
+  @keyframes ringSpinCounter{to{transform:rotate(-360deg);}}
   .portrait-ring .inner img{width:100%;height:100%;object-fit:cover;}
-  .portrait-ring .initials{
-    font-family:'Fraunces',serif;font-weight:700;font-size:2rem;color:var(--bone);
-  }
+  .portrait-ring .initials{font-family:'Fraunces',serif;font-weight:700;font-size:2.1rem;color:var(--bone);}
 
   .eyebrow{
     font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;
-    color:var(--green);margin-bottom:18px;
+    color:var(--green);margin-bottom:16px;text-align:center;
   }
-  .anchor-name{
-    font-family:'Fraunces',serif;font-weight:700;font-size:clamp(2.4rem,6.5vw,4.6rem);
-    line-height:1.02;letter-spacing:-.01em;color:var(--bone);
-    text-shadow:0 0 60px rgba(0,0,0,.6);
-  }
-  .anchor-role{margin-top:16px;font-size:1.02rem;color:var(--dim2);max-width:480px;margin-left:auto;margin-right:auto;line-height:1.6;}
-  .anchor-exp{margin-top:20px;font-family:'JetBrains Mono',monospace;font-size:.76rem;color:var(--brass);letter-spacing:.08em;}
-
-  .plane-scan{inset:-10%;animation-name:scanDrift;pointer-events:none;mix-blend-mode:overlay;}
-  @keyframes scanDrift{
-    0%   { transform:translateZ(200px) translateY(-30px); opacity:.5; }
-    50%  { transform:translateZ(260px) translateY(20px); opacity:.32; }
-    100% { transform:translateZ(340px) translateY(90px); opacity:.16; }
-  }
-  .scan-lines{width:100%;height:100%;background:repeating-linear-gradient(to bottom,rgba(237,234,227,.05) 0px,rgba(237,234,227,.05) 1px,transparent 1px,transparent 4px);}
+  .anchor-name{font-family:'Fraunces',serif;font-weight:700;font-size:clamp(2.2rem,6vw,4.2rem);line-height:1.02;letter-spacing:-.01em;text-align:center;}
+  .anchor-role{margin-top:14px;font-size:1rem;color:var(--dim2);max-width:460px;text-align:center;line-height:1.6;margin-left:auto;margin-right:auto;}
+  .anchor-exp{margin-top:18px;font-family:'JetBrains Mono',monospace;font-size:.74rem;color:var(--brass);letter-spacing:.08em;text-align:center;}
 
   .scroll-cue{
     position:absolute;bottom:5vh;left:50%;transform:translateX(-50%);
@@ -163,192 +129,332 @@
   }
   .section-head h2{font-family:'Fraunces',serif;font-size:clamp(1.8rem,4vw,2.5rem);font-weight:600;margin-bottom:70px;}
 
-  /* ================= TIMELINE ================= */
-  .timeline{max-width:800px;margin:0 auto;padding:0 6vw 40px;display:flex;flex-direction:column;gap:60px;}
-  .fold-in{
-    transform-style:preserve-3d;background:var(--panel);border:1px solid var(--line);border-radius:14px;
-    padding:32px 34px;transform-origin:top center;
-    animation:unfold linear;animation-timeline:view();animation-range:entry 0% cover 40%;
-  }
-  @keyframes unfold{
-    from{ transform:rotateX(-60deg) translateY(24px); opacity:0; }
-    to{ transform:rotateX(0deg) translateY(0); opacity:1; }
-  }
-  .fold-in .year{font-family:'JetBrains Mono',monospace;color:var(--green);font-size:.8rem;letter-spacing:.06em;margin-bottom:10px;}
-  .fold-in h3{font-family:'Fraunces',serif;font-size:1.25rem;margin-bottom:8px;}
-  .fold-in p{color:var(--dim2);font-size:.92rem;line-height:1.6;}
+  /* ================= STATS ================= */
+  .stats-section{padding:40px 6vw 100px;max-width:1080px;margin:0 auto;}
+  .stats-grid{display:grid;grid-template-columns:repeat(6,1fr);border-top:1px solid var(--line);border-left:1px solid var(--line);}
+  @media(max-width:900px){.stats-grid{grid-template-columns:repeat(3,1fr);}}
+  @media(max-width:520px){.stats-grid{grid-template-columns:repeat(2,1fr);}}
+  .stat-card{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:30px 18px;text-align:center;
+    animation-name:statPop;animation-timeline:view();animation-range:entry 20% cover 40%;animation-fill-mode:both;animation-duration:1ms;}
+  @keyframes statPop{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+  .stat-num{font-family:'Fraunces',serif;font-weight:700;font-size:clamp(1.6rem,3.4vw,2.3rem);color:var(--green);}
+  .stat-num .suffix{color:var(--brass);}
+  .stat-label{margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;color:var(--dim2);}
 
-  /* ================= PROJECTS ================= */
-  .projects-zone{padding:60px 0 20px;}
-  .proj-grid{
-    display:grid;grid-template-columns:repeat(3,1fr);gap:22px;
-    max-width:1080px;margin:0 auto;padding:0 6vw;
+  /* ================= STORY TIMELINE ================= */
+  .timeline{max-width:760px;margin:0 auto;padding:0 6vw 40px;position:relative;}
+  .timeline::before{content:"";position:absolute;left:calc(6vw + 5px);top:0;bottom:40px;width:1px;background:var(--line);}
+  .fold-in{
+    position:relative;padding-left:34px;margin-bottom:52px;
+    animation:unfold linear both;animation-timeline:view();animation-range:entry 0% cover 35%;
   }
-  @media(max-width:900px){.proj-grid{grid-template-columns:repeat(2,1fr);}}
-  @media(max-width:600px){.proj-grid{grid-template-columns:1fr;}}
-  .proj-card{
-    background:var(--panel);border:1px solid var(--line);border-radius:14px;
-    padding:26px 24px;transition:border-color .2s,transform .2s;
+  .fold-in::before{content:"";position:absolute;left:1px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--bg);border:2px solid var(--green);}
+  @keyframes unfold{ from{ transform:translateY(20px); opacity:0; } to{ transform:translateY(0); opacity:1; } }
+  .fold-in .year{font-family:'JetBrains Mono',monospace;color:var(--green);font-size:.8rem;letter-spacing:.06em;margin-bottom:8px;}
+  .fold-in h3{font-family:'Fraunces',serif;font-size:1.2rem;margin-bottom:8px;}
+  .fold-in p{color:var(--dim2);font-size:.9rem;line-height:1.6;}
+
+  /* ================= NETWORK DIAGRAM ================= */
+  .diagram-section{padding:20px 6vw 100px;max-width:900px;margin:0 auto;}
+  .diagram-track{display:flex;flex-direction:column;align-items:center;gap:0;}
+  .diagram-node{
+    display:flex;flex-direction:column;align-items:center;gap:6px;padding:18px 26px;
+    border:1px solid var(--line);border-radius:12px;background:var(--panel);min-width:220px;text-align:center;
+    animation-name:nodeGlow;animation-timeline:view();animation-range:entry 10% cover 45%;animation-fill-mode:both;animation-duration:1ms;
   }
-  .proj-card:hover{border-color:rgba(62,207,142,.4);transform:translateY(-3px);}
-  .proj-card .ptag{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--green);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;}
-  .proj-card h3{font-family:'Fraunces',serif;font-size:1.12rem;margin-bottom:8px;}
-  .proj-card p{color:var(--dim2);font-size:.85rem;line-height:1.55;margin-bottom:14px;}
-  .proj-card a{color:var(--brass);font-size:.8rem;text-decoration:none;font-family:'JetBrains Mono',monospace;}
-  .proj-card a:hover{color:var(--green);}
+  @keyframes nodeGlow{
+    0%{ opacity:0; transform:scale(.92); box-shadow:0 0 0 rgba(62,207,142,0); }
+    60%{ opacity:1; transform:scale(1); box-shadow:0 0 26px rgba(62,207,142,.18); }
+    100%{ opacity:1; transform:scale(1); box-shadow:0 0 10px rgba(62,207,142,.08); }
+  }
+  .diagram-node .dname{font-family:'Fraunces',serif;font-size:1.05rem;}
+  .diagram-node .drole{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--dim2);letter-spacing:.05em;text-transform:uppercase;}
+  .diagram-link{width:1px;height:46px;background:linear-gradient(var(--green),var(--brass));position:relative;opacity:.5;}
+  .diagram-link::after{
+    content:"";position:absolute;left:-2px;top:0;width:5px;height:5px;border-radius:50%;background:var(--green);
+    animation:packetTravel 1.6s linear infinite;
+  }
+  @keyframes packetTravel{from{top:0;opacity:1;}to{top:100%;opacity:.2;}}
+
+  /* ================= TERMINAL ================= */
+  .terminal-section{padding:20px 6vw 110px;max-width:760px;margin:0 auto;}
+  .terminal{background:#0B0C0E;border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:0 30px 60px -20px rgba(0,0,0,.6);}
+  .term-bar{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--line);background:#0E0F11;}
+  .term-dot{width:10px;height:10px;border-radius:50%;}
+  .term-dot.r{background:#FF5F57;} .term-dot.y{background:#FEBC2E;} .term-dot.g{background:#28C840;}
+  .term-title{margin-left:10px;font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--dim);}
+  .term-body{padding:26px 24px;font-family:'JetBrains Mono',monospace;font-size:.86rem;line-height:1.9;min-height:220px;}
+  .term-body .prompt{color:var(--green);}
+  .term-body .cmd{color:var(--bone);}
+  .term-body .out{color:var(--dim2);padding-left:0;}
+  .term-body .key{color:var(--brass);}
+  .cursor-blink{display:inline-block;width:7px;height:1em;background:var(--green);vertical-align:text-bottom;animation:blink 1s step-end infinite;}
+  @keyframes blink{50%{opacity:0;}}
+
+  /* ================= PROJECTS (browser mockups) ================= */
+  .projects-zone{padding:20px 0 40px;}
+  .proj-list{max-width:1000px;margin:0 auto;padding:0 6vw;display:flex;flex-direction:column;gap:90px;}
+  .proj-item{display:grid;grid-template-columns:1fr;gap:20px;}
+  .browser-chrome{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--panel2);
+    animation:browserRise linear both;animation-timeline:view();animation-range:entry 0% cover 40%;}
+  @keyframes browserRise{from{opacity:0;transform:translateY(24px) scale(.98);}to{opacity:1;transform:translateY(0) scale(1);}}
+  .chrome-bar{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#0E0F11;border-bottom:1px solid var(--line);}
+  .chrome-dots{display:flex;gap:6px;}
+  .chrome-dots span{width:9px;height:9px;border-radius:50%;background:#33353A;}
+  .chrome-url{flex:1;background:#08090A;border-radius:6px;padding:5px 12px;font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--dim2);}
+  .chrome-screen{
+    aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;
+    background:radial-gradient(circle at 30% 20%,rgba(62,207,142,.14),transparent 60%),
+               radial-gradient(circle at 80% 80%,rgba(176,138,92,.12),transparent 55%),#0B0C0E;
+  }
+  .chrome-screen .screen-mark{font-family:'Fraunces',serif;font-size:clamp(1.4rem,3.6vw,2.2rem);color:rgba(237,234,227,.5);letter-spacing:-.01em;}
+  .proj-meta .ptag{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--green);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;}
+  .proj-meta h3{font-family:'Fraunces',serif;font-size:1.5rem;margin-bottom:10px;}
+  .proj-meta p{color:var(--dim2);font-size:.92rem;line-height:1.65;margin-bottom:16px;max-width:560px;}
+  .proj-meta a{color:var(--brass);font-size:.82rem;text-decoration:none;font-family:'JetBrains Mono',monospace;}
+  .proj-meta a:hover{color:var(--green);}
 
   /* ================= SOCIALS ================= */
-  .socials-section{padding:110px 6vw 100px;max-width:900px;margin:0 auto;}
-  .social-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);}
-  .social-card{background:var(--bg);padding:24px 22px;display:flex;flex-direction:column;gap:6px;text-decoration:none;color:var(--bone);transition:background .2s;}
+  .socials-section{padding:60px 6vw 100px;max-width:900px;margin:0 auto;}
+  .social-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);}
+  .social-card{background:var(--bg);padding:28px 24px;display:flex;flex-direction:column;gap:8px;text-decoration:none;color:var(--bone);transition:background .2s;}
   .social-card:hover{background:var(--panel);}
-  .social-card .sname{font-family:'Fraunces',serif;font-size:1.05rem;}
-  .social-card .shandle{font-family:'JetBrains Mono',monospace;font-size:.76rem;color:var(--dim2);}
+  .social-card .sname{font-family:'Fraunces',serif;font-size:1.15rem;}
+  .social-card .sdesc{font-size:.82rem;color:var(--dim2);}
+  .social-card .sarrow{margin-top:6px;font-family:'JetBrains Mono',monospace;font-size:.76rem;color:var(--brass);}
+  .social-card:hover .sarrow{color:var(--green);}
 
-  footer{
-    padding:44px 6vw;border-top:1px solid var(--line);
-    display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;
-    font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--dim);
-  }
+  /* ================= FOOTER ================= */
+  .premium-footer{padding:140px 6vw 60px;text-align:center;border-top:1px solid var(--line);}
+  .premium-footer .fline{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(1.6rem,4.2vw,2.8rem);line-height:1.15;}
+  .premium-footer .thanks{margin-top:30px;font-family:'JetBrains Mono',monospace;font-size:.76rem;color:var(--dim);letter-spacing:.06em;}
+  .footer-links{margin-top:34px;display:flex;justify-content:center;gap:26px;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;font-size:.78rem;}
+  .footer-links a{color:var(--dim2);text-decoration:none;}
+  .footer-links a:hover{color:var(--green);}
+  .foot-meta{margin-top:70px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--dim);}
 </style>
 </head>
 <body>
+
+<div class="progress-rail"><div class="progress-fill"></div></div>
 
 <nav>
   <div class="brand">madan<span class="dot">.</span>kc</div>
   <div class="nav-links">
     <a href="#timeline">Career</a>
+    <a href="#network">Network</a>
     <a href="#projects">Projects</a>
     <a href="#socials">Connect</a>
   </div>
 </nav>
 
-<!-- ================= HERO ================= -->
-<div class="field-zone">
-  <div class="field-rig">
+<!-- ================= STORY HERO ================= -->
+<div class="story-zone">
+  <div class="story-track">
+    <div class="story-rig">
 
-    <div class="plane plane-mesh">
-      <svg class="mesh-svg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
-        <g stroke="#3ECF8E" stroke-width="1" opacity="0.5">
-          <line x1="100" y1="120" x2="380" y2="260"/>
-          <line x1="380" y1="260" x2="220" y2="480"/>
-          <line x1="380" y1="260" x2="640" y2="180"/>
-          <line x1="640" y1="180" x2="900" y2="340"/>
-          <line x1="900" y1="340" x2="1080" y2="180"/>
-          <line x1="640" y1="180" x2="760" y2="460"/>
-          <line x1="760" y1="460" x2="960" y2="560"/>
-          <line x1="220" y1="480" x2="440" y2="620"/>
-          <line x1="440" y1="620" x2="760" y2="460"/>
-          <line x1="100" y1="120" x2="80" y2="400"/>
-        </g>
-        <g fill="#3ECF8E">
-          <circle cx="100" cy="120" r="4"/><circle cx="380" cy="260" r="5"/>
-          <circle cx="220" cy="480" r="4"/><circle cx="640" cy="180" r="5"/>
-          <circle cx="900" cy="340" r="4"/><circle cx="1080" cy="180" r="4"/>
-          <circle cx="760" cy="460" r="5"/><circle cx="960" cy="560" r="4"/>
-          <circle cx="440" cy="620" r="4"/><circle cx="80" cy="400" r="3"/>
-        </g>
-      </svg>
-    </div>
-
-    <div class="plane plane-ghost"><div class="ghost-text">SIGNAL</div></div>
-
-    <div class="plane plane-frag">
-      <div class="frag f1">BDCOM OLT</div>
-      <div class="frag f2">MikroTik</div>
-      <div class="frag f3">GPON / EPON</div>
-      <div class="frag f4">Huawei OLT</div>
-      <div class="frag f5">Cisco</div>
-      <div class="frag f6">10+ yrs ISP</div>
-    </div>
-
-    <div class="plane plane-anchor">
-      <div class="portrait-ring">
-        <div class="inner">
-          <!-- Replace this block with: <img src="profile.jpg" alt="Madan KC"> -->
-          <span class="initials">MK</span>
-        </div>
+      <div class="fiber-bg">
+        <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
+          <path class="fiber-path" d="M -50 650 C 200 500, 300 700, 550 450 S 900 200, 1250 350"/>
+          <path class="fiber-path b" d="M -50 200 C 250 350, 400 100, 650 300 S 1000 550, 1250 450"/>
+          <path class="fiber-path" d="M -50 420 C 300 420, 500 600, 750 420 S 1000 250, 1250 420"/>
+        </svg>
       </div>
-      <div class="eyebrow">profile.madankc.com.np</div>
-      <div class="anchor-name">Madan KC</div>
-      <p class="anchor-role">ISP network engineer working across fiber, wireless, and last-mile infrastructure — Tanahu, Nepal.</p>
-      <div class="anchor-exp">10+ YEARS IN THE FIELD</div>
+      <div class="noise-overlay"></div>
+
+      <div class="word-line w-networks">NETWORKS</div>
+      <div class="word-line w-fiber">FIBER</div>
+      <div class="word-line" style="color:var(--bone);">CONNECTIVITY</div>
+      <div class="word-line w-fiber" style="color:var(--brass);">PEOPLE</div>
+      <div class="word-line w-people">Behind every connection<br>is someone who built it.</div>
+
+      <div class="word-line word-anchor">
+        <div class="portrait-ring">
+          <div class="inner">
+            <img src="/profile.jpeg" alt="Madan KC" onerror="this.parentElement.innerHTML='<span class=&quot;initials&quot;>MK</span>'">
+          </div>
+        </div>
+        <div class="eyebrow">profile.madankc.com.np</div>
+        <div class="anchor-name">Madan KC</div>
+        <p class="anchor-role">ISP network engineer working across fiber, wireless, and last-mile infrastructure — Tanahu, Nepal.</p>
+        <div class="anchor-exp">10+ YEARS IN THE FIELD</div>
+      </div>
+
+      <div class="scroll-cue"><span>scroll</span><span class="stem"></span></div>
     </div>
-
-    <div class="plane plane-scan"><div class="scan-lines"></div></div>
-
-    <div class="scroll-cue"><span>scroll</span><span class="stem"></span></div>
   </div>
 </div>
 
-<!-- ================= TIMELINE ================= -->
+<!-- ================= STATS ================= -->
+<section class="stats-section">
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-num">10<span class="suffix">+</span></div><div class="stat-label">Years in ISP networking</div></div>
+    <div class="stat-card"><div class="stat-num">15,000<span class="suffix">+</span></div><div class="stat-label">Subscribers connected</div></div>
+    <div class="stat-card"><div class="stat-num">300<span class="suffix">+</span></div><div class="stat-label">Fiber deployments</div></div>
+    <div class="stat-card"><div class="stat-num">100<span class="suffix">+</span></div><div class="stat-label">Technical articles</div></div>
+    <div class="stat-card"><div class="stat-num">6<span class="suffix">+</span></div><div class="stat-label">Live web platforms</div></div>
+    <div class="stat-card"><div class="stat-num">24<span class="suffix">/7</span></div><div class="stat-label">Network operations</div></div>
+  </div>
+</section>
+
+<!-- ================= STORY TIMELINE ================= -->
 <section id="timeline" style="padding-top:40px;">
   <div class="section-head">
-    <div class="section-label">Since ~2014</div>
-    <h2>Career timeline</h2>
+    <div class="section-label">2014 — 2026</div>
+    <h2>How it happened</h2>
   </div>
   <div class="timeline">
     <div class="fold-in">
-      <div class="year">Early years</div>
-      <h3>Started in ISP network engineering</h3>
+      <div class="year">2014</div>
+      <h3>Started learning networking</h3>
       <p>Began hands-on work with last-mile fiber and copper infrastructure — provisioning, troubleshooting, and field deployment.</p>
     </div>
     <div class="fold-in">
-      <div class="year">Mid career</div>
-      <h3>GPON / EPON deployment focus</h3>
+      <div class="year">2016</div>
+      <h3>Installed the first fiber network</h3>
+      <p>Moved from theory to the field — pulling fiber, splicing, and getting the first subscribers online.</p>
+    </div>
+    <div class="fold-in">
+      <div class="year">2019</div>
+      <h3>Managed GPON / EPON deployments</h3>
       <p>Deep, day-to-day work with BDCOM and Huawei OLT platforms — LLID provisioning, signal diagnostics, ONU configuration at scale.</p>
     </div>
     <div class="fold-in">
-      <div class="year">Recent</div>
-      <h3>Knowledge + content — madankc.com.np</h3>
-      <p>Publishing detailed technical guides for ISP hardware and router configuration, now the core of an SEO-focused knowledge base.</p>
+      <div class="year">2022</div>
+      <h3>Started building websites</h3>
+      <p>Began documenting field knowledge online — router configs, OLT guides, troubleshooting notes for other engineers.</p>
     </div>
+    <div class="fold-in">
+      <div class="year">2024</div>
+      <h3>Built Nepal-focused online tools</h3>
+      <p>Launched Nepali-language utilities — font converters, date tools, and result checkers built for local use.</p>
+    </div>
+    <div class="fold-in">
+      <div class="year">2026</div>
+      <h3>Growing multiple web platforms</h3>
+      <p>Now running a small network of live sites and tools alongside full-time ISP engineering work.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= NETWORK DIAGRAM ================= -->
+<section id="network" class="diagram-section">
+  <div class="section-head">
+    <div class="section-label">How a connection reaches a home</div>
+    <h2>Inside the network</h2>
+  </div>
+  <div class="diagram-track">
+    <div class="diagram-node"><div class="dname">Internet</div><div class="drole">Upstream backbone</div></div>
+    <div class="diagram-link"></div>
+    <div class="diagram-node"><div class="dname">Core Router</div><div class="drole">Routing &amp; traffic policy</div></div>
+    <div class="diagram-link"></div>
+    <div class="diagram-node"><div class="dname">Huawei OLT</div><div class="drole">Optical line termination</div></div>
+    <div class="diagram-link"></div>
+    <div class="diagram-node"><div class="dname">Splitter</div><div class="drole">Optical distribution</div></div>
+    <div class="diagram-link"></div>
+    <div class="diagram-node"><div class="dname">ONU</div><div class="drole">Subscriber terminal</div></div>
+    <div class="diagram-link"></div>
+    <div class="diagram-node"><div class="dname">Home</div><div class="drole">Where it all lands</div></div>
+  </div>
+</section>
+
+<!-- ================= TERMINAL ================= -->
+<section class="terminal-section">
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="term-dot r"></div><div class="term-dot y"></div><div class="term-dot g"></div>
+      <div class="term-title">visitor@profile.madankc.com.np</div>
+    </div>
+    <div class="term-body" id="termBody"></div>
   </div>
 </section>
 
 <!-- ================= PROJECTS ================= -->
 <section id="projects" class="projects-zone">
   <div class="section-head">
-    <div class="section-label">Sites I've built</div>
+    <div class="section-label">What have I built?</div>
     <h2>Projects</h2>
   </div>
-  <div class="proj-grid">
-    <div class="proj-card">
-      <div class="ptag">Blog</div>
-      <h3>madankc.com.np</h3>
-      <p>ISP and networking guides — BDCOM, Huawei OLT, MikroTik, router troubleshooting.</p>
-      <a href="https://madankc.com.np" target="_blank" rel="noopener">Visit →</a>
+  <div class="proj-list">
+
+    <div class="proj-item">
+      <div class="browser-chrome">
+        <div class="chrome-bar"><div class="chrome-dots"><span></span><span></span><span></span></div><div class="chrome-url mono">madankc.com.np</div></div>
+        <div class="chrome-screen"><div class="screen-mark">madankc.com.np</div></div>
+      </div>
+      <div class="proj-meta">
+        <div class="ptag">Blog</div>
+        <h3>madankc.com.np</h3>
+        <p>ISP and networking guides — BDCOM, Huawei OLT, MikroTik configuration, and router troubleshooting, written for engineers doing the same fieldwork.</p>
+        <a href="https://madankc.com.np" target="_blank" rel="noopener">Visit →</a>
+      </div>
     </div>
-    <div class="proj-card">
-      <div class="ptag">Tool</div>
-      <h3>converter.thenepal.io</h3>
-      <p>Preeti-to-Unicode Nepali font converter with multi-font support.</p>
-      <a href="https://converter.thenepal.io" target="_blank" rel="noopener">Visit →</a>
+
+    <div class="proj-item">
+      <div class="browser-chrome">
+        <div class="chrome-bar"><div class="chrome-dots"><span></span><span></span><span></span></div><div class="chrome-url mono">converter.thenepal.io</div></div>
+        <div class="chrome-screen"><div class="screen-mark">converter.thenepal.io</div></div>
+      </div>
+      <div class="proj-meta">
+        <div class="ptag">Tool</div>
+        <h3>converter.thenepal.io</h3>
+        <p>A Preeti-to-Unicode Nepali font converter with support for multiple legacy fonts, built for anyone still working with old Nepali documents.</p>
+        <a href="https://converter.thenepal.io" target="_blank" rel="noopener">Visit →</a>
+      </div>
     </div>
-    <div class="proj-card">
-      <div class="ptag">Site</div>
-      <h3>thenepal.io</h3>
-      <p>Nepal travel, culture, and national symbols hub.</p>
-      <a href="https://thenepal.io" target="_blank" rel="noopener">Visit →</a>
+
+    <div class="proj-item">
+      <div class="browser-chrome">
+        <div class="chrome-bar"><div class="chrome-dots"><span></span><span></span><span></span></div><div class="chrome-url mono">thenepal.io</div></div>
+        <div class="chrome-screen"><div class="screen-mark">thenepal.io</div></div>
+      </div>
+      <div class="proj-meta">
+        <div class="ptag">Site</div>
+        <h3>thenepal.io</h3>
+        <p>A hub for Nepal travel, culture, and national symbols — the umbrella site tying the other Nepal-focused tools together.</p>
+        <a href="https://thenepal.io" target="_blank" rel="noopener">Visit →</a>
+      </div>
     </div>
-    <div class="proj-card">
-      <div class="ptag">Tool</div>
-      <h3>gpatopercentage.thenepal.io</h3>
-      <p>SEE Result checker and GPA-to-percentage converter.</p>
-      <a href="https://gpatopercentage.thenepal.io" target="_blank" rel="noopener">Visit →</a>
+
+    <div class="proj-item">
+      <div class="browser-chrome">
+        <div class="chrome-bar"><div class="chrome-dots"><span></span><span></span><span></span></div><div class="chrome-url mono">gpatopercentage.thenepal.io</div></div>
+        <div class="chrome-screen"><div class="screen-mark">gpatopercentage.thenepal.io</div></div>
+      </div>
+      <div class="proj-meta">
+        <div class="ptag">Tool</div>
+        <h3>gpatopercentage.thenepal.io</h3>
+        <p>An SEE result checker and GPA-to-percentage converter used by students across Nepal every result season.</p>
+        <a href="https://gpatopercentage.thenepal.io" target="_blank" rel="noopener">Visit →</a>
+      </div>
     </div>
-    <div class="proj-card">
-      <div class="ptag">Site</div>
-      <h3>symbols.thenepal.io</h3>
-      <p>Bilingual pages covering Nepal's national symbols.</p>
-      <a href="https://symbols.thenepal.io" target="_blank" rel="noopener">Visit →</a>
+
+    <div class="proj-item">
+      <div class="browser-chrome">
+        <div class="chrome-bar"><div class="chrome-dots"><span></span><span></span><span></span></div><div class="chrome-url mono">symbols.thenepal.io</div></div>
+        <div class="chrome-screen"><div class="screen-mark">symbols.thenepal.io</div></div>
+      </div>
+      <div class="proj-meta">
+        <div class="ptag">Site</div>
+        <h3>symbols.thenepal.io</h3>
+        <p>Bilingual pages covering Nepal's national symbols, built for students and researchers looking for accurate, sourced content.</p>
+        <a href="https://symbols.thenepal.io" target="_blank" rel="noopener">Visit →</a>
+      </div>
     </div>
-    <div class="proj-card">
-      <div class="ptag">Site</div>
-      <h3>dglink.com.np</h3>
-      <p>Another property in the network — details on the site itself.</p>
-      <a href="https://dglink.com.np" target="_blank" rel="noopener">Visit →</a>
+
+    <div class="proj-item">
+      <div class="browser-chrome">
+        <div class="chrome-bar"><div class="chrome-dots"><span></span><span></span><span></span></div><div class="chrome-url mono">dglink.com.np</div></div>
+        <div class="chrome-screen"><div class="screen-mark">dglink.com.np</div></div>
+      </div>
+      <div class="proj-meta">
+        <div class="ptag">Site</div>
+        <h3>dglink.com.np</h3>
+        <p>The public site for DG Link, the fiber ISP this work is grounded in — day to day network operations meeting the customer-facing web.</p>
+        <a href="https://dglink.com.np" target="_blank" rel="noopener">Visit →</a>
+      </div>
     </div>
+
   </div>
 </section>
 
@@ -360,30 +466,139 @@
   </div>
   <div class="social-grid">
     <a class="social-card" href="https://github.com/kcmadan01" target="_blank" rel="noopener">
-      <div class="sname">GitHub</div><div class="shandle mono">@kcmadan01</div>
+      <div class="sname">GitHub</div><div class="sdesc">View my code</div><div class="sarrow mono">@kcmadan01 →</div>
     </a>
     <a class="social-card" href="https://www.linkedin.com/in/madan-kc-112b11206" target="_blank" rel="noopener">
-      <div class="sname">LinkedIn</div><div class="shandle mono">Madan KC</div>
+      <div class="sname">LinkedIn</div><div class="sdesc">Professional profile</div><div class="sarrow mono">Madan KC →</div>
     </a>
     <a class="social-card" href="https://youtube.com/@MadanKc" target="_blank" rel="noopener">
-      <div class="sname">YouTube</div><div class="shandle mono">@MadanKc</div>
+      <div class="sname">YouTube</div><div class="sdesc">Watch networking videos</div><div class="sarrow mono">@MadanKc →</div>
     </a>
     <a class="social-card" href="https://x.com/kc_madan01" target="_blank" rel="noopener">
-      <div class="sname">X / Twitter</div><div class="shandle mono">@kc_madan01</div>
+      <div class="sname">X / Twitter</div><div class="sdesc">Quick updates &amp; notes</div><div class="sarrow mono">@kc_madan01 →</div>
     </a>
     <a class="social-card" href="https://facebook.com/MadanKc53" target="_blank" rel="noopener">
-      <div class="sname">Facebook</div><div class="shandle mono">MadanKc53</div>
+      <div class="sname">Facebook</div><div class="sdesc">Personal &amp; community posts</div><div class="sarrow mono">MadanKc53 →</div>
     </a>
     <a class="social-card" href="https://wa.me/+9779856065618" target="_blank" rel="noopener">
-      <div class="sname">WhatsApp</div><div class="shandle mono">Message me</div>
+      <div class="sname">WhatsApp</div><div class="sdesc">Fastest way to reach me</div><div class="sarrow mono">Message me →</div>
     </a>
   </div>
 </section>
 
-<footer>
-  <span>profile.madankc.com.np</span>
-  <span>Tanahu, Nepal · CSS scroll-driven 3D — no JS scroll listeners</span>
+<!-- ================= PREMIUM FOOTER ================= -->
+<footer class="premium-footer">
+  <div class="fline">Let's build the next<br>generation of networks.</div>
+  <div class="thanks">Thanks for scrolling.</div>
+  <div class="footer-links">
+    <a href="https://github.com/kcmadan01" target="_blank" rel="noopener">GitHub</a>
+    <a href="https://www.linkedin.com/in/madan-kc-112b11206" target="_blank" rel="noopener">LinkedIn</a>
+    <a href="https://wa.me/+9779856065618" target="_blank" rel="noopener">WhatsApp</a>
+  </div>
+  <div class="foot-meta">
+    <span>profile.madankc.com.np</span>
+    <span>Tanahu, Nepal · CSS scroll-driven 3D — no JS scroll listeners</span>
+  </div>
 </footer>
+
+<script>
+  // Terminal typing sequence
+  (function(){
+    const body = document.getElementById('termBody');
+    const lines = [
+      {p:true, text:'whoami'},
+      {out:'Madan KC'},
+      {p:true, text:'experience'},
+      {out:'10+ years'},
+      {p:true, text:'stack'},
+      {out:'BDCOM · Huawei OLT · MikroTik · GPON/EPON'},
+      {p:true, text:'projects'},
+      {out:'6 live platforms'},
+      {p:true, text:'status'},
+      {out:'ONLINE', key:true},
+      {p:true, text:'location'},
+      {out:'Tanahu, Nepal'}
+    ];
+    let li = 0;
+    function typeLine(){
+      if(li >= lines.length){
+        const c = document.createElement('span');
+        c.className = 'prompt';
+        c.innerHTML = 'visitor@profile $ <span class="cursor-blink"></span>';
+        body.appendChild(c);
+        return;
+      }
+      const line = lines[li];
+      const row = document.createElement('div');
+      if(line.p){
+        row.innerHTML = '<span class="prompt">visitor@profile $</span> ';
+        const cmdSpan = document.createElement('span');
+        cmdSpan.className = 'cmd';
+        row.appendChild(cmdSpan);
+        body.appendChild(row);
+        let ci = 0;
+        (function typeChar(){
+          if(ci <= line.text.length){
+            cmdSpan.textContent = line.text.slice(0, ci);
+            ci++;
+            setTimeout(typeChar, 45);
+          } else {
+            li++;
+            setTimeout(typeLine, 200);
+          }
+        })();
+      } else {
+        row.className = line.key ? 'out key' : 'out';
+        row.textContent = line.out;
+        body.appendChild(row);
+        li++;
+        setTimeout(typeLine, 260);
+      }
+    }
+    const io = new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting){ typeLine(); io.disconnect(); }
+      });
+    }, {threshold:0.4});
+    io.observe(document.querySelector('.terminal'));
+  })();
+
+  // Animated stat counters
+  (function(){
+    const stats = [
+      {sel:'.stats-grid .stat-card:nth-child(1) .stat-num', to:10, suffix:'+'},
+      {sel:'.stats-grid .stat-card:nth-child(2) .stat-num', to:15000, suffix:'+', format:true},
+      {sel:'.stats-grid .stat-card:nth-child(3) .stat-num', to:300, suffix:'+'},
+      {sel:'.stats-grid .stat-card:nth-child(4) .stat-num', to:100, suffix:'+'},
+      {sel:'.stats-grid .stat-card:nth-child(5) .stat-num', to:6, suffix:'+'}
+    ];
+    function animate(el, to, suffix, format){
+      const start = performance.now();
+      const dur = 1400;
+      function frame(now){
+        const t = Math.min(1, (now - start) / dur);
+        const eased = 1 - Math.pow(1 - t, 3);
+        const val = Math.round(to * eased);
+        el.innerHTML = (format ? val.toLocaleString() : val) + '<span class="suffix">' + suffix + '</span>';
+        if(t < 1) requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    }
+    const io = new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting){
+          stats.forEach(s=>{
+            const el = document.querySelector(s.sel);
+            if(el) animate(el, s.to, s.suffix, s.format);
+          });
+          io.disconnect();
+        }
+      });
+    }, {threshold:0.3});
+    const grid = document.querySelector('.stats-grid');
+    if(grid) io.observe(grid);
+  })();
+</script>
 
 </body>
 </html>
