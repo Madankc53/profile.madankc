@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Madan KC — Network Engineer, Nepal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0D0E10;
+    --panel:#17181B;
+    --bone:#EDEAE3;
+    --dim:#8A8B8E;
+    --green:#3ECF8E;
+    --brass:#B08A5C;
+    --border:#26282C;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg);color:var(--bone);font-family:'Inter',sans-serif;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+
+  @supports not (animation-timeline: view()){
+    .project-grid-3d, .fold-in{opacity:1 !important;transform:none !important;}
+  }
+
+  nav{
+    position:fixed;top:0;left:0;right:0;z-index:50;
+    display:flex;justify-content:space-between;align-items:center;
+    padding:22px 6vw;backdrop-filter:blur(8px);
+    background:rgba(13,14,16,.6);border-bottom:1px solid var(--border);
+  }
+  .brand{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:.95rem;}
+  .brand .dot{color:var(--green);}
+  .nav-links{display:flex;gap:26px;font-size:.82rem;color:var(--dim);}
+  .nav-links a{color:var(--dim);text-decoration:none;}
+  @media(max-width:700px){.nav-links{display:none;}}
+
+  /* ---------------- HERO ---------------- */
+  .hero{
+    min-height:88vh;display:flex;flex-direction:column;justify-content:center;align-items:center;
+    padding:120px 6vw 60px;text-align:center;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--green);margin-bottom:20px;
+  }
+  .hero h1{
+    font-family:'Fraunces',serif;font-weight:600;font-size:clamp(2.2rem,5.5vw,4rem);
+    line-height:1.1;margin-bottom:14px;
+  }
+  .hero p.lead{color:var(--dim);font-size:1.05rem;max-width:520px;}
+  .hero .exp{
+    margin-top:22px;font-family:'JetBrains Mono',monospace;font-size:.78rem;
+    color:var(--brass);letter-spacing:.06em;
+  }
+
+  /* ---------------- CAMERA ZOOM PROJECT GRID ---------------- */
+  .hero-perspective-zone{
+    perspective:1200px;
+    perspective-origin:50% 30%;
+    height:280vh;
+    position:relative;
+  }
+  .sticky-camera-rig{
+    position:sticky;top:0;height:100vh;
+    display:flex;flex-direction:column;justify-content:center;
+    transform-style:preserve-3d;
+    padding:0 6vw;
+  }
+  .rig-head{
+    text-align:center;margin-bottom:50px;
+  }
+  .rig-head .section-label{
+    font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--brass);margin-bottom:14px;
+  }
+  .rig-head h2{font-family:'Fraunces',serif;font-size:clamp(1.8rem,4vw,2.6rem);font-weight:600;}
+
+  @keyframes cameraZoom{
+    0%   { transform: translateZ(0px) rotateX(0deg); }
+    50%  { transform: translateZ(-260px) rotateX(12deg); }
+    100% { transform: translateZ(-520px) rotateX(22deg); }
+  }
+  .project-grid-3d{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:26px;
+    max-width:1100px;margin:0 auto;width:100%;
+    transform-style:preserve-3d;
+    animation:cameraZoom linear both;
+    animation-timeline:view();
+    animation-range:entry 0% exit 100%;
+  }
+  @media(max-width:900px){.project-grid-3d{grid-template-columns:repeat(2,1fr);}}
+  @media(max-width:600px){.project-grid-3d{grid-template-columns:1fr;}}
+
+  .proj-card{
+    background:var(--panel);border:1px solid var(--border);border-radius:14px;
+    padding:26px 24px;
+  }
+  .proj-card .ptag{
+    font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--green);
+    letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;
+  }
+  .proj-card h3{font-family:'Fraunces',serif;font-size:1.15rem;margin-bottom:8px;}
+  .proj-card p{color:var(--dim);font-size:.85rem;line-height:1.55;margin-bottom:14px;}
+  .proj-card a{color:var(--brass);font-size:.8rem;text-decoration:none;font-family:'JetBrains Mono',monospace;}
+
+  /* ---------------- SOCIALS ---------------- */
+  .socials-section{
+    padding:60px 6vw 160px;max-width:900px;margin:0 auto;
+  }
+  .section-head{text-align:left;margin-bottom:50px;}
+  .section-label{
+    font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--brass);margin-bottom:14px;
+  }
+  .section-head h2{font-family:'Fraunces',serif;font-size:clamp(1.8rem,4vw,2.6rem);font-weight:600;}
+
+  .social-grid{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1px;
+    background:var(--border);border:1px solid var(--border);
+  }
+  .social-card{
+    background:var(--bg);padding:26px 24px;display:flex;flex-direction:column;gap:6px;
+    text-decoration:none;color:var(--bone);transition:background .2s;
+  }
+  .social-card:hover{background:var(--panel);}
+  .social-card .sname{font-family:'Fraunces',serif;font-size:1.1rem;}
+  .social-card .shandle{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--dim);}
+
+  footer{
+    padding:50px 6vw;border-top:1px solid var(--border);
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;
+    font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--dim);
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="brand">madan<span class="dot">.</span>kc</div>
+  <div class="nav-links">
+    <a href="#projects">Projects</a>
+    <a href="#socials">Connect</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="eyebrow">profile.madankc.com.np</div>
+  <h1 style="font-family:'Fraunces',serif;">Madan KC</h1>
+  <p class="lead">ISP network engineer working across BDCOM, Huawei OLT, MikroTik, and GPON/EPON infrastructure — based in Tanahu, Nepal.</p>
+  <div class="exp">10+ YEARS ISP EXPERIENCE</div>
+</section>
+
+<div class="hero-perspective-zone" id="projects">
+  <div class="sticky-camera-rig">
+    <div class="rig-head">
+      <div class="section-label">Sites I've built</div>
+      <h2>Projects</h2>
+    </div>
+    <div class="project-grid-3d">
+      <div class="proj-card">
+        <div class="ptag">Blog</div>
+        <h3>madankc.com.np</h3>
+        <p>ISP and networking guides — BDCOM, Huawei OLT, MikroTik, router troubleshooting.</p>
+        <a href="https://madankc.com.np" target="_blank" rel="noopener">Visit →</a>
+      </div>
+      <div class="proj-card">
+        <div class="ptag">Tool</div>
+        <h3>converter.thenepal.io</h3>
+        <p>Preeti-to-Unicode Nepali font converter with multi-font support.</p>
+        <a href="https://converter.thenepal.io" target="_blank" rel="noopener">Visit →</a>
+      </div>
+      <div class="proj-card">
+        <div class="ptag">Site</div>
+        <h3>thenepal.io</h3>
+        <p>Nepal travel, culture, and national symbols hub.</p>
+        <a href="https://thenepal.io" target="_blank" rel="noopener">Visit →</a>
+      </div>
+      <div class="proj-card">
+        <div class="ptag">Tool</div>
+        <h3>gpatopercentage.thenepal.io</h3>
+        <p>SEE Result 2082 checker and GPA-to-percentage converter.</p>
+        <a href="https://gpatopercentage.thenepal.io" target="_blank" rel="noopener">Visit →</a>
+      </div>
+      <div class="proj-card">
+        <div class="ptag">Site</div>
+        <h3>symbols.thenepal.io</h3>
+        <p>Bilingual pages covering Nepal's national symbols.</p>
+        <a href="https://symbols.thenepal.io" target="_blank" rel="noopener">Visit →</a>
+      </div>
+      <div class="proj-card">
+        <div class="ptag">Site</div>
+        <h3>dglink.com.np</h3>
+        <p>Another property in the network — details on the site itself.</p>
+        <a href="https://dglink.com.np" target="_blank" rel="noopener">Visit →</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="socials-section" id="socials">
+  <div class="section-head">
+    <div class="section-label">Find me elsewhere</div>
+    <h2>Connect</h2>
+  </div>
+  <div class="social-grid">
+    <a class="social-card" href="https://github.com/kcmadan01" target="_blank" rel="noopener">
+      <div class="sname">GitHub</div>
+      <div class="shandle mono">@kcmadan01</div>
+    </a>
+    <a class="social-card" href="https://www.linkedin.com/in/madan-kc-112b11206" target="_blank" rel="noopener">
+      <div class="sname">LinkedIn</div>
+      <div class="shandle mono">Madan KC</div>
+    </a>
+    <a class="social-card" href="https://youtube.com/@MadanKc" target="_blank" rel="noopener">
+      <div class="sname">YouTube</div>
+      <div class="shandle mono">@MadanKc</div>
+    </a>
+    <a class="social-card" href="https://x.com/kc_madan01" target="_blank" rel="noopener">
+      <div class="sname">X / Twitter</div>
+      <div class="shandle mono">@kc_madan01</div>
+    </a>
+    <a class="social-card" href="https://facebook.com/MadanKc53" target="_blank" rel="noopener">
+      <div class="sname">Facebook</div>
+      <div class="shandle mono">MadanKc53</div>
+    </a>
+    <a class="social-card" href="https://wa.me/+9779856065618" target="_blank" rel="noopener">
+      <div class="sname">WhatsApp</div>
+      <div class="shandle mono">Message me</div>
+    </a>
+  </div>
+</section>
+
+<footer>
+  <span>profile.madankc.com.np</span>
+  <span>Tanahu, Nepal · CSS scroll-driven 3D — no JS scroll listeners</span>
+</footer>
+
+</body>
+</html>
